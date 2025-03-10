@@ -46,7 +46,7 @@ menu:
 	beq $v0 , 3 , exit
 	j menu
 
-encrypt:
+menuEncrypt:
 	move $a0 , $s4 # askString
 	li $a1 , 400
 	li $v0 , 4	
@@ -61,55 +61,17 @@ encrypt:
 	li $v0 , 5
 	syscall
 	move $t0 , $v0 # $t0 has chyper
+	
+	j encrypt
 
-encrypt_loop:
-	lb $t1 , 0($s0) # $t1 has the char
-	beq $t1 , 0 , encrypt_end # if char is null, end
-	add $t1 , $t1 , $t0 # add chyper
-	sb $t1 , 0($s0) # save char
-	addi $s0 , $s0 , 1 # next char
-	j encrypt_loop
+encrypt
+	jal isNumber
+	beq $v1 , 
 
-encrypt_end:
-	la $a0 , string # print string from beginning
-	li $v0 , 4
-	syscall
-	j menu
-	# call
 
-decrypt:
-	move $a0 , $s4 # askString
-	li $a1 , 400
-	li $v0 , 4	
-	syscall  	
-	move $a0 , $s0 # readString
-	li $v0 , 8
-	syscall  	
 
-	move $a0 , $s5 # askCypher
-	li $v0 , 4	
-	syscall  	
-	li $v0 , 5
-	syscall
-	move $t0 , $v0 # $t0 has chyper
+isNumber
 
-	decrypt_loop:
-    lb $t1, 0($s0)    
-    beq $t1, $zero, end_decrypt  
-    
-    sub $t1, $t1, $t0  # Subtrai o deslocamento para reverter a cifra
-    
-    sb $t1, 0($s0)    
-    
-    addi $s0, $s0, 1  
-    j decrypt_loop    
-
-end_decrypt:
-	la $a0 , string # print string from beginning
-	li $v0 , 4
-	syscall
-	j menu
-	# call
 
 exit: 	
 	li $v0 , 10	
