@@ -65,13 +65,13 @@ encrypt:
 encrypt_loop:
 	lb $t1 , 0($s0) # $t1 has the char
 	beq $t1 , 0 , encrypt_end # if char is null, end
-	addi $s0 , $s0 , 1 # next char
 	add $t1 , $t1 , $t0 # add chyper
 	sb $t1 , 0($s0) # save char
+	addi $s0 , $s0 , 1 # next char
 	j encrypt_loop
 
 encrypt_end:
-	move $a0 , $s0 # print string
+	la $a0 , string # print string from beginning
 	li $v0 , 4
 	syscall
 	j menu
@@ -105,11 +105,10 @@ decrypt:
     j decrypt_loop    
 
 end_decrypt:
-	move $a0 , $s0 # print string
+	la $a0 , string # print string from beginning
 	li $v0 , 4
 	syscall
 	j menu
-
 	# call
 
 exit: 	
