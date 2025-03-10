@@ -41,17 +41,17 @@ menu:
 	li $v0 , 5 # read option
 	syscall  	
 	
-	beq $v0 , 1 , encrypt
+	beq $v0 , 1 , menuEncrypt
 	beq $v0 , 2 , decrypt
 	beq $v0 , 3 , exit
 	j menu
 
 menuEncrypt:
 	move $a0 , $s4 # askString
-	li $a1 , 400
 	li $v0 , 4	
 	syscall  	
 	move $a0 , $s0 # readString
+	li $a1 , 100
 	li $v0 , 8
 	syscall  	
 
@@ -64,14 +64,129 @@ menuEncrypt:
 	
 	j encrypt
 
-encrypt
-	jal isNumber
-	beq $v1 , 
+encrypt:
+	move $s7 , $s0
+
+	move $a2 , $t0 # modulo para os numeros
+	li $a3 , 10
+	jal modulo
+	move $t2 , $v1
+
+	move $a2 , $t0 # modulo para as letras 
+	li $a3 , 26
+	jal modulo
+	move $t3 , $v1
+
+	loopEncrypt:
+		li $v1 , 0
+		lb $t1 , 0($s7) 
+		beq $t1 , 10 , print
+		beq $t1 , 0 , print
+		jal isNumber
+		beq $v1 , 1 , encryptNumber 
+		jal isLetter
+		beq $v1 , 1 , encryptLetter
+		jal isLetterUpercase
+		beq $v1 , 1 , encryptLetterUpercase
+	
+	j exit
+
+encryptNumber:
+	li $t5 , '0'
+	sub $t4 , $t1 , $t5
+	add $t6 , $t4 , $t2
+	bge $t6 , 10 , greaterEqualencryptNumber
+		add $t1 , $t1 , $t2
+		sb $t1 , 0($s7)
+		addi $s7 , $s7 , 1 
+		j loopEncrypt
+	greaterEqualencryptNumber: 
+		sub $t6 , $t6 , 10
+		add $t1 , $t5 , $t6
+		sb $t1 , 0($s7) 
+		addi $s7 , $s7 , 1
+		j loopEncrypt
+
+encryptLetterUpercase:
+	li $t5 , 'A'
+	sub $t4 , $t1 , $t5
+	add $t6 , $t4 , $t3
+	bge $t6 , 26 , greaterEqualencryptLetterUpercase
+		add $t1 , $t1 , $t3
+		sb $t1 , 0($s7)
+		addi $s7 , $s7 , 1 
+		j loopEncrypt
+	greaterEqualencryptLetterUpercase: 
+		sub $t6 , $t6 , 26
+		add $t1 , $t5 , $t6
+		sb $t1 , 0($s7) 
+		addi $s7 , $s7 , 1
+		j loopEncrypt
+
+
+encryptLetter:
+	li $t5 , 'a'
+	sub $t4 , $t1 , $t5
+	add $t6 , $t4 , $t3
+	bge $t6 , 26 , greaterEqualencryptLetter
+		add $t1 , $t1 , $t3
+		sb $t1 , 0($s7)
+		addi $s7 , $s7 , 1 
+		j loopEncrypt
+	greaterEqualencryptLetter: 
+		sub $t6 , $t6 , 26
+		add $t1 , $t5 , $t6
+		sb $t1 , 0($s7) 
+		addi $s7 , $s7 , 1
+		j loopEncrypt
 
 
 
-isNumber
+modulo: # modulo de $a2 pelo numero de $a3
+	div $a2 , $a3
+	li $a3 , 0
+	li $a2 , 0
+	mfhi $v1
+	jr $ra
 
+
+isNumber: # checks if the character a number $v1 0 if false | $v1 1 if true
+	blt $t1 , '0' , isNumberFalse
+	bgt $t1 , '9', isNumberFalse
+	li $v1 , 1
+	jr $ra
+	isNumberFalse:
+		li $v1 , 0 
+		jr $ra	
+
+isLetter: # checks if the character is a lower case letter $v1 0 if false | $v1 1 if true
+	blt $t1 , 'a' , isLetterFalse
+	bgt $t1 , 'z', isLetterFalse
+	li $v1 , 1
+	jr $ra
+	isLetterFalse:
+		li $v1 , 0
+		jr $ra	
+
+isLetterUpercase: # checks if the character is a lower case letter $v1 0 if false | $v1 1 if true
+	blt $t1 , 'A' , isLetterUpercaseFalse
+	bgt $t1 , 'Z', isLetterUpercaseFalse
+	li $v1 , 1
+	jr $ra
+	isLetterUpercaseFalse:
+		li $v1 , 0
+		jr $ra	
+
+print:
+	move $a0 , $s0 #print String
+	li $v0 , 4
+	syscall
+	move $a0 , $s6 
+	li $v0 , 4
+	syscall  
+	j menu
+
+decrypt:
 
 exit: 	
 	li $v0 , 10	
