@@ -62,6 +62,19 @@ encrypt:
 	syscall
 	move $t0 , $v0 # $t0 has chyper
 
+encrypt_loop:
+	lb $t1 , 0($s0) # $t1 has the char
+	beq $t1 , 0 , encrypt_end # if char is null, end
+	addi $s0 , $s0 , 1 # next char
+	add $t1 , $t1 , $t0 # add chyper
+	sb $t1 , 0($s0) # save char
+	j encrypt_loop
+
+encrypt_end:
+	move $a0 , $s0 # print string
+	li $v0 , 4
+	syscall
+	j menu
 	# call
 
 decrypt:
@@ -79,6 +92,23 @@ decrypt:
 	li $v0 , 5
 	syscall
 	move $t0 , $v0 # $t0 has chyper
+
+	decrypt_loop:
+    lb $t1, 0($s0)    
+    beq $t1, $zero, end_decrypt  
+    
+    sub $t1, $t1, $t0  # Subtrai o deslocamento para reverter a cifra
+    
+    sb $t1, 0($s0)    
+    
+    addi $s0, $s0, 1  
+    j decrypt_loop    
+
+end_decrypt:
+	move $a0 , $s0 # print string
+	li $v0 , 4
+	syscall
+	j menu
 
 	# call
 
