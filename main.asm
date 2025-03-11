@@ -42,7 +42,7 @@ menu:
 	syscall  	
 	
 	beq $v0 , 1 , menuEncrypt
-	beq $v0 , 2 , decrypt
+	beq $v0 , 2 , menuDecrypt
 	beq $v0 , 3 , exit
 	j menu
 
@@ -185,6 +185,24 @@ print:
 	li $v0 , 4
 	syscall  
 	j menu
+
+menuDecrypt:
+	move $a0 , $s4 # askString
+	li $v0 , 4	
+	syscall  	
+	move $a0 , $s0 # readString
+	li $a1 , 100
+	li $v0 , 8
+	syscall  	
+
+	move $a0 , $s5 # askCypher
+	li $v0 , 4	
+	syscall  	
+	li $v0 , 5
+	syscall
+	move $t0 , $v0 # $t0 has chyper
+	
+	j decrypt
 
 decrypt:
 	move $s7, $s0
