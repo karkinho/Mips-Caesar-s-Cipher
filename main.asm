@@ -1,6 +1,6 @@
 .data
 	menu1: .asciiz "1. Criptografar\n"
-	menu2: .asciiz "2. Descriptogracifar\n"
+	menu2: .asciiz "2. Descriptografar\n"
 	menu3: .asciiz "3. Sair\n" 
 	askString: .asciiz "Digite a Mensagem: "
 	askCypher: .asciiz "Digite o Deslocamento: "
@@ -187,6 +187,81 @@ print:
 	j menu
 
 decrypt:
+	move $s7, $s0
+
+	move $a2 , $t0 
+	li $a3 , 10
+	jal modulo
+	move $t2 , $v1
+
+	move $a2 , $t0 
+	li $a3 , 26
+	jal modulo
+	move $t3 , $v1
+
+	loopDecrypt:
+		li $v1 , 0
+		lb $t1 , 0($s7) 
+		beq $t1 , 10 , print
+		beq $t1 , 0 , print
+		jal isNumber
+		beq $v1 , 1 , decryptNumber 
+		jal isLetter
+		beq $v1 , 1 , decryptLetter
+		jal isLetterUpercase
+		beq $v1 , 1 , decryptLetterUpercase
+
+	j exit
+
+decryptNumber:
+		li $t5 , '0'
+		sub $t4 , $t1 , $t5
+		sub $t6 , $t4 , $t2
+    	blt $t6, 0, lessThanZeroDecryptNumber 
+    		add $t1, $t5, $t6       
+    		sb $t1, 0($s7)          
+    		addi $s7, $s7, 1        
+    		j loopDecrypt
+	lessThanZeroDecryptNumber:
+		add $t6, $t6, 10
+		add $t1, $t5, $t6
+		sb $t1, 0($s7)
+		addi $s7, $s7, 1
+		j loopDecrypt
+
+decryptLetter:
+		li $t5 , 'a'
+		sub $t4 , $t1 , $t5
+		sub $t6 , $t4 , $t3
+		blt $t6, 0, lessThanZeroDecryptLetter 
+			add $t1, $t5, $t6       
+			sb $t1, 0($s7)          
+			addi $s7, $s7, 1        
+			j loopDecrypt
+	lessThanZeroDecryptLetter:
+		add $t6, $t6, 26
+		add $t1, $t5, $t6
+		sb $t1, 0($s7)
+		addi $s7, $s7, 1
+		j loopDecrypt
+
+decryptLetterUpercase:
+    li $t5, 'A'            
+    sub $t4, $t1, $t5     
+    sub $t6, $t4, $t3      
+    blt $t6, 0, lessThanZeroDecryptLetterUpercase 
+
+    add $t1, $t5, $t6      
+    sb $t1, 0($s7)         
+    addi $s7, $s7, 1        
+    j loopDecrypt
+
+lessThanZeroDecryptLetterUpercase:
+    addi $t6, $t6, 26       
+    add $t1, $t5, $t6       
+    sb $t1, 0($s7)         
+    addi $s7, $s7, 1     
+    j loopDecrypt
 
 exit: 	
 	li $v0 , 10	
