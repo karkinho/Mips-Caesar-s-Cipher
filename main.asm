@@ -1,3 +1,5 @@
+# Evandro Chaves Barn e Pedro D'Avila
+
 .data
 	menu1: .asciiz "1. Criptografar\n"
 	menu2: .asciiz "2. Descriptografar\n"
