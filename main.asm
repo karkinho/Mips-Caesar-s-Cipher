@@ -5,7 +5,7 @@
 	askString: .asciiz "Digite a Mensagem: "
 	askCypher: .asciiz "Digite o Deslocamento: "
 	nextLine: .asciiz "\n" 
-	string: .space 100 # String with max size of 400 character
+	string: .space 400 # String with max size of 400 character
 .text
 
 	# $t0 to $t7 will be temporary variables
@@ -51,7 +51,7 @@ menuEncrypt:
 	li $v0 , 4	
 	syscall  	
 	move $a0 , $s0 # readString
-	li $a1 , 100
+	li $a1 , 400
 	li $v0 , 8
 	syscall  	
 
@@ -76,12 +76,16 @@ encrypt:
 	li $a3 , 26
 	jal modulo
 	move $t3 , $v1
+	
+    addi $s7 , $s7 , -1
 
 	loopEncrypt:
+		addi $s7 , $s7 , 1
 		li $v1 , 0
 		lb $t1 , 0($s7) 
 		beq $t1 , 10 , print
 		beq $t1 , 0 , print
+		beq $t1 , ' ' , loopEncrypt
 		jal isNumber
 		beq $v1 , 1 , encryptNumber 
 		jal isLetter
@@ -98,13 +102,11 @@ encryptNumber:
 	bge $t6 , 10 , greaterEqualencryptNumber
 		add $t1 , $t1 , $t2
 		sb $t1 , 0($s7)
-		addi $s7 , $s7 , 1 
 		j loopEncrypt
 	greaterEqualencryptNumber: 
 		sub $t6 , $t6 , 10
 		add $t1 , $t5 , $t6
 		sb $t1 , 0($s7) 
-		addi $s7 , $s7 , 1
 		j loopEncrypt
 
 encryptLetterUpercase:
@@ -114,13 +116,11 @@ encryptLetterUpercase:
 	bge $t6 , 26 , greaterEqualencryptLetterUpercase
 		add $t1 , $t1 , $t3
 		sb $t1 , 0($s7)
-		addi $s7 , $s7 , 1 
 		j loopEncrypt
 	greaterEqualencryptLetterUpercase: 
 		sub $t6 , $t6 , 26
 		add $t1 , $t5 , $t6
 		sb $t1 , 0($s7) 
-		addi $s7 , $s7 , 1
 		j loopEncrypt
 
 
@@ -131,13 +131,11 @@ encryptLetter:
 	bge $t6 , 26 , greaterEqualencryptLetter
 		add $t1 , $t1 , $t3
 		sb $t1 , 0($s7)
-		addi $s7 , $s7 , 1 
 		j loopEncrypt
 	greaterEqualencryptLetter: 
 		sub $t6 , $t6 , 26
 		add $t1 , $t5 , $t6
 		sb $t1 , 0($s7) 
-		addi $s7 , $s7 , 1
 		j loopEncrypt
 
 
@@ -191,7 +189,7 @@ menuDecrypt:
 	li $v0 , 4	
 	syscall  	
 	move $a0 , $s0 # readString
-	li $a1 , 100
+	li $a1 , 400
 	li $v0 , 8
 	syscall  	
 
@@ -217,11 +215,15 @@ decrypt:
 	jal modulo
 	move $t3 , $v1
 
+	addi $s7, $s7, -1
+
 	loopDecrypt:
+		addi $s7, $s7, 1
 		li $v1 , 0
 		lb $t1 , 0($s7) 
 		beq $t1 , 10 , print
 		beq $t1 , 0 , print
+		beq $t1 , ' ' , loopDecrypt
 		jal isNumber
 		beq $v1 , 1 , decryptNumber 
 		jal isLetter
@@ -237,14 +239,12 @@ decryptNumber:
 		sub $t6 , $t4 , $t2
     	blt $t6, 0, lessThanZeroDecryptNumber 
     		add $t1, $t5, $t6       
-    		sb $t1, 0($s7)          
-    		addi $s7, $s7, 1        
+    		sb $t1, 0($s7)                  
     		j loopDecrypt
 	lessThanZeroDecryptNumber:
 		add $t6, $t6, 10
 		add $t1, $t5, $t6
 		sb $t1, 0($s7)
-		addi $s7, $s7, 1
 		j loopDecrypt
 
 decryptLetter:
@@ -253,14 +253,12 @@ decryptLetter:
 		sub $t6 , $t4 , $t3
 		blt $t6, 0, lessThanZeroDecryptLetter 
 			add $t1, $t5, $t6       
-			sb $t1, 0($s7)          
-			addi $s7, $s7, 1        
+			sb $t1, 0($s7)                  
 			j loopDecrypt
 	lessThanZeroDecryptLetter:
 		add $t6, $t6, 26
 		add $t1, $t5, $t6
 		sb $t1, 0($s7)
-		addi $s7, $s7, 1
 		j loopDecrypt
 
 decryptLetterUpercase:
@@ -270,15 +268,13 @@ decryptLetterUpercase:
     blt $t6, 0, lessThanZeroDecryptLetterUpercase 
 
     add $t1, $t5, $t6      
-    sb $t1, 0($s7)         
-    addi $s7, $s7, 1        
+    sb $t1, 0($s7)                
     j loopDecrypt
 
 lessThanZeroDecryptLetterUpercase:
     addi $t6, $t6, 26       
     add $t1, $t5, $t6       
     sb $t1, 0($s7)         
-    addi $s7, $s7, 1     
     j loopDecrypt
 
 exit: 	
